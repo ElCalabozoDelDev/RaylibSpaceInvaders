@@ -1,10 +1,4 @@
 /*
-Raylib example file.
-This is an example main file for a simple raylib project.
-Use this as a starting point or replace it with your code.
-
-For a C++ project simply rename the file to .cpp and run premake 
-
 -- Copyright (c) 2020-2024 Jeffery Myers
 --
 --This software is provided "as-is", without any express or implied warranty. In no event 
@@ -25,20 +19,29 @@ For a C++ project simply rename the file to .cpp and run premake
 */
 
 #include "raylib.h"
+#include "game.hpp"
+
 
 int main ()
 {
+	Color grey = {29, 29, 27, 255};
+	Color yellow = { 243, 216, 63, 255 };
+	int offset = 50;
+	int screenWidth = 750;
+	int screenHeight = 700;
 	// set up the window
-	InitWindow(1280, 800, "Hello Raylib");
-	
+	InitWindow(screenWidth + offset, screenHeight + 2 * offset, "C++ Space Invaders");
+	SetTargetFPS(60);
+
 	// game loop
 	while (!WindowShouldClose())
 	{
-		// drawing
+		Game::Instance()->HandleInput();
+		Game::Instance()->Update();
 		BeginDrawing();
-		ClearBackground(BLACK);
-
-		DrawText("Hello Raylib", 200,200,20,WHITE);
+		ClearBackground(grey);
+		DrawRectangleRoundedLines({10, 10, 780, 780}, 0.18f, 2, yellow);
+		Game::Instance()->Draw();
 		
 		EndDrawing();
 	}
