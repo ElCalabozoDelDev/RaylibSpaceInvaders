@@ -41,6 +41,7 @@ private:
     void CheckHighScore();
     void SaveHighScore(int score);
     int LoadHighScore();
+    int GetAliensCount() { return aliens.size(); }
 public:
     static Game* Instance()
     {

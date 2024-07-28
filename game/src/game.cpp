@@ -130,6 +130,10 @@ void Game::CheckCollisions()
                 it = aliens.erase(it);
                 laser.Deactivate();
                 CheckHighScore();
+                if (GetAliensCount() == 0)
+                {
+                    GameOver();
+                }
             }
             else
             {
