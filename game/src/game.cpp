@@ -1,5 +1,6 @@
 #include "game.hpp"
 #include <iostream>
+#include <fstream>
 
 Game* Game::s_pInstance = 0;
 
@@ -10,11 +11,16 @@ Game::Game()
 
 Game::~Game()
 {
+    UnloadMusicStream(music);
+    UnloadSound(explosionSound);
     Alien::UnloadTextures();
 }
 
 void Game::Init()
 {
+    music = LoadMusicStream("resources/sounds/music.ogg");
+    PlayMusicStream(music);
+    explosionSound = LoadSound("resources/sounds/explosion.ogg");
     obstacles = GenerateObstacles();
     aliens = GenerateAliens();
     alienDir = 1;
@@ -23,6 +29,8 @@ void Game::Init()
     mysteryShipCooldown = GetRandomValue(10, 20);
     lives = 3;
     run = true;
+    score = 0;
+    highScore = LoadHighScore();
 }
 
 void Game::Restart()
@@ -33,13 +41,48 @@ void Game::Restart()
     obstacles.clear();
 }
 
+void Game::CheckHighScore()
+{
+    if (score > highScore)
+    {
+        highScore = score;
+        SaveHighScore(highScore);
+    }
+}
+
+void Game::SaveHighScore(int score)
+{
+    std::ofstream file("resources/highscore.txt");
+    if (file.is_open())
+    {
+        file << score;
+        file.close();
+    } else {
+        std::cerr << "Unable to save highscore to file" << std::endl;
+    }
+}
+
+int Game::LoadHighScore()
+{
+    int score = 0;
+    std::ifstream file("resources/highscore.txt");
+    if (file.is_open())
+    {
+        file >> score;
+        file.close();
+    } else {
+        std::cerr << "Unable to load highscore from file" << std::endl;
+    }
+    return score;
+}
+
 void Game::DeleteInactives()
 {
-    for (auto it = player.lasers.begin(); it != player.lasers.end();)
+    for (auto it = player.LasersBegin(); it != player.LasersEnd();)
     {
         if (!it->IsActive())
         {
-            it = player.lasers.erase(it);
+            it = player.EraseLaser(it);
         }
         else
         {
@@ -75,15 +118,18 @@ void Game::AlienShoot()
 void Game::CheckCollisions()
 {
     // spaceship lasers
-    for (auto& laser : player.lasers)
+    for (auto& laser : player.GetLasers())
     {
         auto it = aliens.begin();
         while (it != aliens.end())
         {
             if (CheckCollisionRecs(it->GetCollisionRec(), laser.GetCollisionRec()))
             {
+                PlaySound(explosionSound);
+                score += it->GetPoints();
                 it = aliens.erase(it);
                 laser.Deactivate();
+                CheckHighScore();
             }
             else
             {
@@ -108,8 +154,11 @@ void Game::CheckCollisions()
         }
         if (CheckCollisionRecs(mysteryShip.GetCollisionRec(), laser.GetCollisionRec()))
         {
+            PlaySound(explosionSound);
+            score += mysteryShip.GetPoints();
             mysteryShip.Deactivate();
             laser.Deactivate();
+            CheckHighScore();
         }
     }
 
@@ -182,7 +231,7 @@ std::vector<Obstacle> Game::GenerateObstacles()
 
     for(int i = 0; i < 4; i++) {
         float offsetX = (i + 1) * gap + i * obstacleWidth;
-        obstacles.push_back(Obstacle({offsetX, float(GetScreenHeight() - 150)}));
+        obstacles.push_back(Obstacle({offsetX, float(GetScreenHeight() - 200)}));
     }
     return obstacles;
 }
@@ -220,12 +269,12 @@ void Game::MoveAliens()
 {
     for (auto& alien: aliens)
     {
-        if (alien.GetPosition().x + alien.GetTexture().width > GetScreenWidth())
+        if (alien.GetPosition().x + alien.GetTexture().width > GetScreenWidth() - 25)
         {
             alienDir = -1;
             MoveDownAliens(4);
         }
-        if (alien.GetPosition().x < 0)
+        if (alien.GetPosition().x < 25)
         {
             alienDir = 1;
             MoveDownAliens(4);
@@ -255,7 +304,7 @@ void Game::Update()
         mysteryShipTimer = GetTime();
         mysteryShipCooldown = GetRandomValue(10, 20);
     }
-    for (auto& laser : player.lasers)
+    for (auto& laser : player.GetLasers())
     {
         laser.Update();
     }
@@ -273,7 +322,7 @@ void Game::Update()
 void Game::Draw()
 {
     player.Draw();
-    for (auto& laser : player.lasers)
+    for (auto& laser : player.GetLasers())
     {
         laser.Draw();
     }

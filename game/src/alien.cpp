@@ -37,3 +37,8 @@ void Alien::UnloadTextures()
         UnloadTexture(textures[i]);
     }
 }
+
+int Alien::GetPoints()
+{
+    return type * 100;
+}

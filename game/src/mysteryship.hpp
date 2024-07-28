@@ -16,4 +16,5 @@ public:
     void Spawn();
     Rectangle GetCollisionRec();
     void Deactivate() { active = false; }
+    int GetPoints() { return 500; }
 };

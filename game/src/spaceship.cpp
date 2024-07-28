@@ -3,13 +3,15 @@
 
 Spaceship::Spaceship()
 {
+    shootSound = LoadSound("resources/sounds/laser.ogg");
     texture = LoadTexture("resources/graphics/spaceship.png");
     position.x = (GetScreenWidth() - texture.width)/2;
-    position.y = GetScreenHeight() - texture.height - 50;
+    position.y = GetScreenHeight() - texture.height - 100;
     lastShootTime = 0.0;
 }
 Spaceship::~Spaceship()
 {
+    UnloadSound(shootSound);
     UnloadTexture(texture);
 }
 
@@ -21,18 +23,18 @@ void Spaceship::Draw()
 void Spaceship::MoveLeft()
 {
     position.x -= 5;
-    if (position.x <= 0)
+    if (position.x <= 25)
     {
-        position.x = 0;
+        position.x = 25;
     }
 }
 
 void Spaceship::MoveRight()
 {
     position.x += 5;
-    if (position.x >= GetScreenWidth() - texture.width)
+    if (position.x >= GetScreenWidth() - texture.width - 25)
     {
-        position.x = GetScreenWidth() - texture.width;
+        position.x = GetScreenWidth() - texture.width - 25;
     }
 }
 
@@ -42,6 +44,7 @@ void Spaceship::Shoot()
     {
         lasers.push_back(Laser({position.x + texture.width/2 - 2, position.y}, 6));
         lastShootTime = GetTime();
+        PlaySound(shootSound);
     }
     
 }
@@ -49,7 +52,7 @@ void Spaceship::Shoot()
 void Spaceship::Reset()
 {
     position.x = (GetScreenWidth() - texture.width)/2;
-    position.y = GetScreenHeight() - texture.height - 50;
+    position.y = GetScreenHeight() - texture.height - 100;
     lasers.clear();
 }
 

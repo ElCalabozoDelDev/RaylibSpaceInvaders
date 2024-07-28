@@ -24,7 +24,7 @@ void MysteryShip::Update()
     if (active)
     {
         position.x += speed;
-        if (position.x > GetScreenWidth() - texture.width || position.x < 0)
+        if (position.x > GetScreenWidth() - texture.width - 25 || position.x < 25)
         {
             active = false;
         }
@@ -39,12 +39,12 @@ void MysteryShip::Spawn()
     int side = GetRandomValue(0, 1);
     if (side == 0)
     {
-        position.x = 0;
+        position.x = 25;
         speed = 3;
     }
     else
     {
-        position.x = GetScreenWidth() - texture.width;
+        position.x = GetScreenWidth() - texture.width - 25;
         speed = -3;
     }
 }

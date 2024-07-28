@@ -21,6 +21,11 @@ private:
     float alienLaserTimer;
     float mysteryShipCooldown;
     float mysteryShipTimer;
+    bool run;
+    int score;
+    int highScore;
+    Music music;
+    Sound explosionSound;
     Game();
     ~Game();
     std::vector<Obstacle> GenerateObstacles();
@@ -33,7 +38,9 @@ private:
     void Init();
     void GameOver();
     void Restart();
-    bool run;
+    void CheckHighScore();
+    void SaveHighScore(int score);
+    int LoadHighScore();
 public:
     static Game* Instance()
     {
@@ -49,4 +56,9 @@ public:
     void Update();
     void HandleInput();
     void Shutdown() {}
+    bool IsRunning() { return run; }
+    int GetLives() { return lives; }
+    int GetScore() { return score; }
+    int GetHighScore() { return highScore; }
+    Music GetMusic() { return music; }
 };

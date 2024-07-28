@@ -20,7 +20,15 @@
 
 #include "raylib.h"
 #include "game.hpp"
+#include "patch.hpp"
 
+std::string FormatScore(int score, int leadingZeros)
+{
+	std::string scoreStr = std::to_string(score);
+	int zeros = leadingZeros - scoreStr.length();
+	scoreStr = std::string(zeros, '0') + scoreStr;
+	return scoreStr;
+}
 
 int main ()
 {
@@ -33,14 +41,42 @@ int main ()
 	InitWindow(screenWidth + offset, screenHeight + 2 * offset, "C++ Space Invaders");
 	SetTargetFPS(60);
 
+	InitAudioDevice();
+
+	Font font = LoadFontEx("resources/fonts/monogram.ttf", 64, 0, 0);
+	Texture2D spaceshipTexture = LoadTexture("resources/graphics/spaceship.png");
 	// game loop
 	while (!WindowShouldClose())
 	{
+		UpdateMusicStream(Game::Instance()->GetMusic());
 		Game::Instance()->HandleInput();
 		Game::Instance()->Update();
 		BeginDrawing();
 		ClearBackground(grey);
 		DrawRectangleRoundedLines({10, 10, 780, 780}, 0.18f, 2, yellow);
+		DrawLineEx({25, 730}, {775, 730}, 3, yellow);
+		if(Game::Instance()->IsRunning())
+		{
+			DrawTextEx(font, "LEVEL 01", {570, 740}, 34, 2, yellow);
+
+		} else {
+			DrawTextEx(font, "GAME OVER", {570, 740}, 34, 2, yellow);
+		}
+		float x = 50;
+		for (int i = 0; i < Game::Instance()->GetLives(); i++)
+		{
+			DrawTextureV(spaceshipTexture, {x, 745}, WHITE);
+			x += 50;
+		}
+		
+		DrawTextEx(font, "SCORE", {50, 15}, 34, 2, yellow);
+		std::string scoreStr = FormatScore(Game::Instance()->GetScore(), 5);
+		DrawTextEx(font, scoreStr.c_str(), {50, 40}, 34, 2, yellow);
+
+		DrawTextEx(font, "HIGH-SCORE", {570, 15}, 34, 2, yellow);
+		std::string highScoreStr = FormatScore(Game::Instance()->GetHighScore(), 5);
+		DrawTextEx(font, highScoreStr.c_str(), {655, 40}, 34, 2, yellow);
+
 		Game::Instance()->Draw();
 		
 		EndDrawing();
@@ -48,5 +84,6 @@ int main ()
 
 	// cleanup
 	CloseWindow();
+	CloseAudioDevice();
 	return 0;
 }

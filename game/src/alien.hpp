@@ -18,4 +18,5 @@ public:
     Vector2 GetPosition() { return position; }
     Texture2D GetTexture() { return textures[type - 1]; }
     Rectangle GetCollisionRec() { return {position.x, position.y, (float)textures[type - 1].width, (float)textures[type - 1].height}; }
+    int GetPoints();
 };
