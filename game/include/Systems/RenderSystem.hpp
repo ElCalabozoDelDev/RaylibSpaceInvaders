@@ -1,14 +1,10 @@
 #pragma once
+#include "ecs.h"
 
-#include <unordered_map>
-#include <vector>
-#include "Entity.hpp"
-#include "Components/Position.hpp"
-#include "Components/Renderable.hpp"
-
-class RenderSystem {
+class RenderSystem : public System
+{
 public:
-    void Update(std::vector<Entity>& entities, 
-                std::unordered_map<Entity, Position>& positions, 
-                std::unordered_map<Entity, Renderable>& renderables);
+	SYSTEM_CONSTRUCTOR(RenderSystem);
+
+	void Update() override;
 };

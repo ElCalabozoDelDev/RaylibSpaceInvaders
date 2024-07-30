@@ -1,15 +1,28 @@
+#include "ecs.h"
+#include "raylib.h"
 #include "Systems/RenderSystem.hpp"
-#include <raylib.h>
+#include "Components/TransformComponent.hpp"
+#include "TransformManager.hpp"
 
-void RenderSystem::Update(std::vector<Entity>& entities, 
-                          std::unordered_map<Entity, Position>& positions, 
-                          std::unordered_map<Entity, Renderable>& renderables) {
-    for (auto& entity : entities) {
-        if (positions.find(entity) != positions.end() && 
-            renderables.find(entity) != renderables.end()) {
-            auto& position = positions[entity];
-            auto& renderable = renderables[entity];
-            DrawRectangleV(position.position, renderable.size, renderable.color);
-        }
-    }
+void RenderSystem::Update()
+{
+	DoForEachComponent<TransformComponent>([this](TransformComponent& component)
+		{
+			TransformManager::Instance()->PushTransformComponent(component, ECSContainer);
+			
+			// Color tint = WHITE;
+			// ColorComponent* color = ECSContainer.TryGetComponent<ColorComponent>(component.EntityId);
+			// if (color)
+			// 	tint = color->GetColor();
+
+			// CircleComponent* circle = ECSContainer.TryGetComponent<CircleComponent>(component.EntityId);
+			// if (circle)
+			// 	DrawCircleV(Vector2Zero(), circle->Radius, tint);
+
+			// RectangleComponent* rectangle = ECSContainer.TryGetComponent<RectangleComponent>(component.EntityId);
+			// if (rectangle)
+			// 	DrawRectangleRec(rectangle->Bounds, tint);
+
+			TransformManager::Instance()->PopTransformComponent(component, ECSContainer);
+		});
 }
