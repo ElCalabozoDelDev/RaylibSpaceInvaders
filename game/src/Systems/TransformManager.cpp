@@ -15,8 +15,8 @@ void TransformManager::PushTransformComponent(const TransformComponent &transfor
     }
 
     rlPushMatrix();
-    // rlTranslatef(transform.Position.x, transform.Position.y, 0);
-    // rlRotatef(transform.Angle, 0, 0, 1);
+    rlTranslatef(transform.Position.x, transform.Position.y, 0);
+    rlRotatef(transform.Angle, 0, 0, 1);
 }
 
 void TransformManager::PopTransformComponent(const TransformComponent &transform, ECS &ecs)

@@ -8,11 +8,11 @@ void DrawSystem::Update()
 {
     DoForEachComponent<TransformComponent>([this](TransformComponent& component)
         {
-            TransformManager::PushTransformComponent(component, ECSContainer);
+            // TransformManager::PushTransformComponent(component, ECSContainer);
             SpaceshipComponent* spaceship = ECSContainer.TryGetComponent<SpaceshipComponent>(component.EntityId);
             if (spaceship)
                 DrawTextureV(spaceship->Texture, component.Position, WHITE);
 
-            TransformManager::PopTransformComponent(component, ECSContainer);
+            // TransformManager::PopTransformComponent(component, ECSContainer);
         });
 }
