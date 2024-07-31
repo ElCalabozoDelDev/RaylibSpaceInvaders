@@ -1,14 +1,14 @@
-#include "ecs.h"
 #include "raylib.h"
+#include "ecs.h"
 #include "Systems/RenderSystem.hpp"
+#include "Systems/TransformManager.hpp"
 #include "Components/TransformComponent.hpp"
-#include "TransformManager.hpp"
 
 void RenderSystem::Update()
 {
 	DoForEachComponent<TransformComponent>([this](TransformComponent& component)
 		{
-			TransformManager::Instance()->PushTransformComponent(component, ECSContainer);
+			TransformManager::PushTransformComponent(component, ECSContainer);
 			
 			// Color tint = WHITE;
 			// ColorComponent* color = ECSContainer.TryGetComponent<ColorComponent>(component.EntityId);
@@ -23,6 +23,6 @@ void RenderSystem::Update()
 			// if (rectangle)
 			// 	DrawRectangleRec(rectangle->Bounds, tint);
 
-			TransformManager::Instance()->PopTransformComponent(component, ECSContainer);
+			TransformManager::PopTransformComponent(component, ECSContainer);
 		});
 }

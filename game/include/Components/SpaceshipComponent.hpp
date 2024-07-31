@@ -9,6 +9,5 @@ class SpaceshipComponent : public Component
 public:
     DEFINE_COMPONENT(SpaceshipComponent);
 
-    Texture2D texture;
-    Vector2 position;
+    Texture2D Texture;
 };

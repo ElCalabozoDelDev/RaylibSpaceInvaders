@@ -38,13 +38,17 @@ int main ()
 	int screenWidth = 750;
 	int screenHeight = 700;
 	// set up the window
-	InitWindow(screenWidth + offset, screenHeight + 2 * offset, "C++ Space Invaders");
+	InitWindow(screenWidth + offset, screenHeight + (2 * offset), "C++ Space Invaders");
 	SetTargetFPS(60);
 
 	InitAudioDevice();
 
 	Font font = LoadFontEx("resources/fonts/monogram.ttf", 64, 0, 0);
 	Texture2D spaceshipTexture = LoadTexture("resources/graphics/spaceship.png");
+	std::cout << "Screen Width: " << GetScreenWidth() << std::endl;
+	std::cout << "screenWidth: " << screenWidth  + offset << std::endl;
+	std::cout << "Screen Height: " << GetScreenHeight() << std::endl;
+	std::cout << "screenHeight: " << screenHeight + (2 * offset) << std::endl;
 	// game loop
 	while (!WindowShouldClose())
 	{
