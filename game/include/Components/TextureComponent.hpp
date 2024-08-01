@@ -4,10 +4,10 @@
 #include <raymath.h>
 #include "raylib.h"
 
-class SpaceshipComponent : public Component
+class TextureComponent : public Component
 {
 public:
-    DEFINE_COMPONENT(SpaceshipComponent);
+    DEFINE_COMPONENT(TextureComponent);
 
     Texture2D Texture;
 };

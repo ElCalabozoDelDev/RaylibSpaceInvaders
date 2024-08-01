@@ -8,6 +8,12 @@ private:
     Game(/* args */);
     ~Game();
 
+    void RegisterComponents();
+    void RegisterSystems();
+    void CreateEntities();
+    void GenerateSpaceship();
+    void GenerateAliens();
+
 public:
     static Game *Instance()
     {
@@ -19,8 +25,5 @@ public:
 
         return s_pInstance;
     }
-    void RegisterComponents();
-    void RegisterSystems();
-    void CreateEntities();
     void Update();
 };

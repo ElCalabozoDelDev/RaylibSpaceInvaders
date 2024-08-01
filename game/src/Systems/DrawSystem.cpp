@@ -1,18 +1,21 @@
 #include "raylib.h"
 #include "Systems/DrawSystem.hpp"
-#include "Systems/TransformManager.hpp"
 #include "Components/TransformComponent.hpp"
-#include "Components/SpaceshipComponent.hpp"
+#include "Components/TextureComponent.hpp"
 
 void DrawSystem::Update()
 {
-    DoForEachComponent<TransformComponent>([this](TransformComponent& component)
+    DoForEachComponent<TextureComponent>([this](TextureComponent& component)
         {
-            // TransformManager::PushTransformComponent(component, ECSContainer);
-            SpaceshipComponent* spaceship = ECSContainer.TryGetComponent<SpaceshipComponent>(component.EntityId);
+            // Draw spaceship
+            TransformComponent* spaceship = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
             if (spaceship)
-                DrawTextureV(spaceship->Texture, component.Position, WHITE);
+                DrawTextureV(component.Texture, spaceship->Position, WHITE);
 
-            // TransformManager::PopTransformComponent(component, ECSContainer);
+            // Draw aliens
+            TransformComponent* alien = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
+            if (alien)
+                DrawTextureV(component.Texture, alien->Position, WHITE);
+
         });
 }

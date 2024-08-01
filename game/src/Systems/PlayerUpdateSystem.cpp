@@ -3,7 +3,7 @@
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Components/PlayerInputComponent.hpp"
 #include "Components/TransformComponent.hpp"
-#include "Components/SpaceshipComponent.hpp"
+#include "Components/TextureComponent.hpp"
 #include <iostream>
 
 
@@ -16,7 +16,7 @@ void PlayerUpdateSystem::Update()
 			TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
 			if (!transform)
 				return;
-			SpaceshipComponent* spaceship = ECSContainer.TryGetComponent<SpaceshipComponent>(component.EntityId);
+			TextureComponent* spaceship = ECSContainer.TryGetComponent<TextureComponent>(component.EntityId);
 			if (!spaceship)
 				return;
 
