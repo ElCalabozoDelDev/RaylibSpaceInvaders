@@ -29,11 +29,7 @@ void AiUpdateSystem::CheckDirectionChange(bool &changeDirection)
 
         if (component.Type < 4)
         {
-            if (transform->Position.x + texture->Texture.width > GetScreenWidth() - 25)
-            {
-                changeDirection = true;
-            }
-            if (transform->Position.x < 25)
+            if (transform->Position.x + texture->Texture.width > GetScreenWidth() - 25 || transform->Position.x < 25)
             {
                 changeDirection = true;
             }
