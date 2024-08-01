@@ -7,18 +7,17 @@
 void AiUpdateSystem::Update()
 {
     bool changeDirection = false;
-    int globalDirection = 1; // Puede ser 1 o -1 dependiendo de la dirección actual
 
     // Comprueba si se necesita cambiar la dirección global
-    CheckDirectionChange(changeDirection, globalDirection);
+    CheckDirectionChange(changeDirection);
 
     // Mueve todos los aliens basándose en la dirección global
-    MoveAliens(changeDirection, globalDirection);
+    MoveAliens(changeDirection);
 }
 
-void AiUpdateSystem::CheckDirectionChange(bool &changeDirection, int &globalDirection)
+void AiUpdateSystem::CheckDirectionChange(bool &changeDirection)
 {
-    DoForEachComponent<AiControllerComponent>([this, &changeDirection, &globalDirection](AiControllerComponent &component)
+    DoForEachComponent<AiControllerComponent>([this, &changeDirection](AiControllerComponent &component)
                                               {
         TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
         if (!transform)
@@ -33,19 +32,17 @@ void AiUpdateSystem::CheckDirectionChange(bool &changeDirection, int &globalDire
             if (transform->Position.x + texture->Texture.width > GetScreenWidth() - 25)
             {
                 changeDirection = true;
-                globalDirection = -1;
             }
             if (transform->Position.x < 25)
             {
                 changeDirection = true;
-                globalDirection = 1;
             }
         } });
 }
 
-void AiUpdateSystem::MoveAliens(bool changeDirection, int globalDirection)
+void AiUpdateSystem::MoveAliens(bool changeDirection)
 {
-    DoForEachComponent<AiControllerComponent>([this, changeDirection, globalDirection](AiControllerComponent &component)
+    DoForEachComponent<AiControllerComponent>([this, changeDirection](AiControllerComponent &component)
                                               {
         TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
         if (!transform)
@@ -55,11 +52,11 @@ void AiUpdateSystem::MoveAliens(bool changeDirection, int globalDirection)
 
         if (changeDirection)
         {
-            component.Direction = globalDirection;
+            component.Direction.x *= -1;
             move.y = 4;
         }
 
-        move.x = component.Direction;
+        move.x = component.Direction.x;
 
         // Mueve los aliens
         transform->Position = Vector2Add(transform->Position, move); });

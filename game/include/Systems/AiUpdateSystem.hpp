@@ -7,6 +7,6 @@ public:
     SYSTEM_CONSTRUCTOR(AiUpdateSystem);
 
     void Update() override;
-    void CheckDirectionChange(bool &changeDirection, int &globalDirection);
-    void MoveAliens(bool changeDirection, int globalDirection);
+    void CheckDirectionChange(bool &changeDirection);
+    void MoveAliens(bool changeDirection);
 };
