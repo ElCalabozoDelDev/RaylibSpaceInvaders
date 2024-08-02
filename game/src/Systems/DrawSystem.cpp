@@ -1,5 +1,8 @@
 #include "raylib.h"
 #include "Systems/DrawSystem.hpp"
+#include "Components/SpaceshipComponent.hpp"
+#include "Components/AlienComponent.hpp"
+#include "Components/MysteryshipComponent.hpp"
 #include "Components/TransformComponent.hpp"
 #include "Components/TextureComponent.hpp"
 
@@ -8,14 +11,25 @@ void DrawSystem::Update()
     DoForEachComponent<TextureComponent>([this](TextureComponent& component)
         {
             // Draw spaceship
-            TransformComponent* spaceship = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
+            SpaceshipComponent* spaceship = ECSContainer.TryGetComponent<SpaceshipComponent>(component.EntityId);
             if (spaceship)
-                DrawTextureV(component.Texture, spaceship->Position, WHITE);
-
+            {
+                TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
+                DrawTextureV(component.Texture, transform->Position, WHITE);
+            }
             // Draw aliens
-            TransformComponent* alien = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
+            AlienComponent* alien = ECSContainer.TryGetComponent<AlienComponent>(component.EntityId);
             if (alien)
-                DrawTextureV(component.Texture, alien->Position, WHITE);
-
+            {
+                TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
+                DrawTextureV(component.Texture, transform->Position, WHITE);
+            }
+            // Draw mysteryship
+            MysteryshipComponent* mysteryship = ECSContainer.TryGetComponent<MysteryshipComponent>(component.EntityId);
+            if (mysteryship)
+            {
+                TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
+                DrawTextureV(component.Texture, transform->Position, WHITE);
+            }
         });
 }

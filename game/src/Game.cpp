@@ -6,6 +6,9 @@
 #include "Components/TransformComponent.hpp"
 #include "Components/TextureComponent.hpp"
 #include "Components/AiControllerComponent.hpp"
+#include "Components/SpaceshipComponent.hpp"
+#include "Components/AlienComponent.hpp"
+#include "Components/MysteryshipComponent.hpp"
 #include "Systems/DrawSystem.hpp"
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Systems/AiUpdateSystem.hpp"
@@ -34,6 +37,9 @@ void Game::RegisterComponents()
     ecs.RegisterComponent<TransformComponent>();
     ecs.RegisterComponent<TextureComponent>();
     ecs.RegisterComponent<AiControllerComponent>();
+    ecs.RegisterComponent<SpaceshipComponent>();
+    ecs.RegisterComponent<AlienComponent>();
+    ecs.RegisterComponent<MysteryshipComponent>();
 }
 
 void Game::RegisterSystems()
@@ -61,6 +67,8 @@ void Game::GenerateSpaceship()
     ecs.GetComponent<TransformComponent>(spaceshipId)->Position = {spaceshipX, spaceshipY};
     ecs.GetComponent<TransformComponent>(spaceshipId)->Angle = 0;
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->LinearSpeed = 5;
+    ecs.GetComponent<SpaceshipComponent>(spaceshipId)->ShootSound = LoadSound("resources/sounds/laser.ogg");
+    ecs.GetComponent<SpaceshipComponent>(spaceshipId)->LastShootTime = 0.0;
 }
 
 void Game::GenerateAliens()
@@ -90,10 +98,21 @@ void Game::GenerateAliens()
             int alienHeight = ecs.GetComponent<TextureComponent>(alienId)->Texture.height;
             ecs.GetComponent<TransformComponent>(alienId)->Position = {x, y};
             ecs.GetComponent<TransformComponent>(alienId)->Angle = 0;
-            ecs.GetComponent<AiControllerComponent>(alienId)->Type = type;
+            ecs.GetComponent<AiControllerComponent>(alienId)->Direction = {1, 0};
+            ecs.GetComponent<AlienComponent>(alienId)->Type = type;
         }
 
     }
+
+    uint64_t mysteryShipId = ecs.GetNewEntity();
+    ecs.GetComponent<TextureComponent>(mysteryShipId)->Texture = LoadTexture("resources/graphics/mystery.png");
+    int mysteryShipWidth = ecs.GetComponent<TextureComponent>(mysteryShipId)->Texture.width;
+    int mysteryShipHeight = ecs.GetComponent<TextureComponent>(mysteryShipId)->Texture.height;
+    ecs.GetComponent<TransformComponent>(mysteryShipId)->Position = {0, 90};
+    ecs.GetComponent<TransformComponent>(mysteryShipId)->Angle = 0;
+    ecs.GetComponent<AiControllerComponent>(mysteryShipId)->Direction = {0 , 0};
+    ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Speed = GetRandomValue(1, 3);
+    ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Active = false;
 }
 
 void Game::Update()
