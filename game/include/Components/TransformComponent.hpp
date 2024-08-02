@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ecs.h"
-#include "raymath.h"
+#include "raylib.h"
 
 class TransformComponent : public Component
 {

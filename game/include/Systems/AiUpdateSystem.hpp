@@ -9,4 +9,5 @@ public:
     void Update() override;
     void CheckDirectionChange(bool &changeDirection);
     void MoveAliens(bool changeDirection);
+    void MoveMysteryship();
 };

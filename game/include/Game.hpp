@@ -13,6 +13,7 @@ private:
     void CreateEntities();
     void GenerateSpaceship();
     void GenerateAliens();
+    void GenerateMysteryship();
 
 public:
     static Game *Instance()

@@ -12,6 +12,7 @@
 #include "Systems/DrawSystem.hpp"
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Systems/AiUpdateSystem.hpp"
+#include "Systems/MysteryshipSpawnSystem.hpp"
 
 #define _ECS_IMPLEMENTATION
 #include "ecs.h"
@@ -47,6 +48,7 @@ void Game::RegisterSystems()
     // (updated in order)
     ecs.RegisterSystem<AiUpdateSystem>();
     ecs.RegisterSystem<PlayerUpdateSystem>();
+    ecs.RegisterSystem<MysteryshipSpawnSystem>();
     ecs.RegisterSystem<DrawSystem>();
 }
 
@@ -54,6 +56,7 @@ void Game::CreateEntities()
 {
     this->GenerateSpaceship();
     this->GenerateAliens();
+    this->GenerateMysteryship();
 }
 
 void Game::GenerateSpaceship()
@@ -103,7 +106,10 @@ void Game::GenerateAliens()
         }
 
     }
+}
 
+void Game::GenerateMysteryship()
+{
     uint64_t mysteryShipId = ecs.GetNewEntity();
     ecs.GetComponent<TextureComponent>(mysteryShipId)->Texture = LoadTexture("resources/graphics/mystery.png");
     int mysteryShipWidth = ecs.GetComponent<TextureComponent>(mysteryShipId)->Texture.width;
@@ -113,6 +119,8 @@ void Game::GenerateAliens()
     ecs.GetComponent<AiControllerComponent>(mysteryShipId)->Direction = {0 , 0};
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Speed = GetRandomValue(1, 3);
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Active = false;
+    ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Timer = 0.0;
+    ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Cooldown = GetRandomValue(10, 20);
 }
 
 void Game::Update()

@@ -8,4 +8,6 @@ public:
     DEFINE_COMPONENT(MysteryshipComponent);
     int Speed;
     bool Active;
+    float Timer;
+    float Cooldown;
 };

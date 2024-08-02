@@ -4,6 +4,7 @@
 #include "Components/TransformComponent.hpp"
 #include "Components/TextureComponent.hpp"
 #include "Components/AlienComponent.hpp"
+#include "Components/MysteryshipComponent.hpp"
 
 void AiUpdateSystem::Update()
 {
@@ -14,6 +15,9 @@ void AiUpdateSystem::Update()
 
     // Mueve todos los aliens basándose en la dirección global
     MoveAliens(changeDirection);
+
+    // Mueve la nave misteriosa
+    MoveMysteryship();
 }
 
 void AiUpdateSystem::CheckDirectionChange(bool &changeDirection)
@@ -66,4 +70,26 @@ void AiUpdateSystem::MoveAliens(bool changeDirection)
 
         // Mueve los aliens
         transform->Position = Vector2Add(transform->Position, move); });
+}
+
+void AiUpdateSystem::MoveMysteryship()
+{
+    DoForEachComponent<MysteryshipComponent>([this](MysteryshipComponent &component)
+                                              {
+        TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
+        if (!transform)
+            return;
+
+        TextureComponent* texture = ECSContainer.TryGetComponent<TextureComponent>(component.EntityId);
+        if (!texture)
+            return;
+
+        if (component.Active)
+        {
+            transform->Position.x += component.Speed;
+            if (transform->Position.x > GetScreenWidth() - texture->Texture.width - 25 || transform->Position.x < 25)
+            {
+                component.Active = false;
+            }
+        } });
 }
