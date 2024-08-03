@@ -9,16 +9,17 @@
 #include "Components/SpaceshipComponent.hpp"
 #include "Components/AlienComponent.hpp"
 #include "Components/MysteryshipComponent.hpp"
+#include "Components/BlockComponent.hpp"
 #include "Systems/DrawSystem.hpp"
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Systems/AiUpdateSystem.hpp"
 #include "Systems/MysteryshipSpawnSystem.hpp"
+#include "Systems/RenderSystem.hpp"
 
 #define _ECS_IMPLEMENTATION
 #include "ecs.h"
 
-
-Game* Game::s_pInstance = 0;
+Game *Game::s_pInstance = 0;
 ECS ecs;
 
 Game::Game()
@@ -41,6 +42,7 @@ void Game::RegisterComponents()
     ecs.RegisterComponent<SpaceshipComponent>();
     ecs.RegisterComponent<AlienComponent>();
     ecs.RegisterComponent<MysteryshipComponent>();
+    ecs.RegisterComponent<BlockComponent>();
 }
 
 void Game::RegisterSystems()
@@ -50,6 +52,7 @@ void Game::RegisterSystems()
     ecs.RegisterSystem<PlayerUpdateSystem>();
     ecs.RegisterSystem<MysteryshipSpawnSystem>();
     ecs.RegisterSystem<DrawSystem>();
+    ecs.RegisterSystem<RenderSystem>();
 }
 
 void Game::CreateEntities()
@@ -57,6 +60,7 @@ void Game::CreateEntities()
     this->GenerateSpaceship();
     this->GenerateAliens();
     this->GenerateMysteryship();
+    this->GenerateObstacles();
 }
 
 void Game::GenerateSpaceship()
@@ -93,7 +97,7 @@ void Game::GenerateAliens()
             {
                 type = 1;
             }
-            float x = j * 55 +75;
+            float x = j * 55 + 75;
             float y = i * 55 + 110;
             uint64_t alienId = ecs.GetNewEntity();
             ecs.GetComponent<TextureComponent>(alienId)->Texture = LoadTexture(("resources/graphics/alien_" + std::to_string(type) + ".png").c_str());
@@ -104,7 +108,6 @@ void Game::GenerateAliens()
             ecs.GetComponent<AiControllerComponent>(alienId)->Direction = {1, 0};
             ecs.GetComponent<AlienComponent>(alienId)->Type = type;
         }
-
     }
 }
 
@@ -116,11 +119,51 @@ void Game::GenerateMysteryship()
     int mysteryShipHeight = ecs.GetComponent<TextureComponent>(mysteryShipId)->Texture.height;
     ecs.GetComponent<TransformComponent>(mysteryShipId)->Position = {0, 90};
     ecs.GetComponent<TransformComponent>(mysteryShipId)->Angle = 0;
-    ecs.GetComponent<AiControllerComponent>(mysteryShipId)->Direction = {0 , 0};
+    ecs.GetComponent<AiControllerComponent>(mysteryShipId)->Direction = {0, 0};
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Speed = GetRandomValue(1, 3);
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Active = false;
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Timer = 0.0;
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Cooldown = GetRandomValue(10, 20);
+}
+
+void Game::GenerateObstacles()
+{
+    std::vector<std::vector<int>> grid = {
+        {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+        {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1}};
+
+    int obstacleWidth = grid[0].size() * 3;
+    float gap = (GetScreenWidth() - (4 * obstacleWidth)) / 5;
+
+    for (int i = 0; i < 4; i++)
+    {
+        float offsetX = (i + 1) * gap + i * obstacleWidth;
+        Vector2 basePosition = {offsetX, float(GetScreenHeight() - 200)};
+        for (int j = 0; j < grid.size(); j++)
+        {
+            for (int k = 0; k < grid[j].size(); k++)
+            {
+                if (grid[j][k] == 1)
+                {
+                    uint64_t blockId = ecs.GetNewEntity();
+                    ecs.GetComponent<BlockComponent>(blockId)->Size = {3, 3};
+                    ecs.GetComponent<BlockComponent>(blockId)->Color = {243, 216, 63, 255};
+                    ecs.GetComponent<TransformComponent>(blockId)->Position = {basePosition.x + k * 3, basePosition.y + j * 3};
+                }
+            }
+        }
+    }
 }
 
 void Game::Update()

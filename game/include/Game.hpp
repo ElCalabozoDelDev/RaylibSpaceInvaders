@@ -14,6 +14,7 @@ private:
     void GenerateSpaceship();
     void GenerateAliens();
     void GenerateMysteryship();
+    void GenerateObstacles();
 
 public:
     static Game *Instance()
