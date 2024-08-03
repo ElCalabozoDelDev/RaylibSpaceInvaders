@@ -10,6 +10,7 @@
 #include "Components/AlienComponent.hpp"
 #include "Components/MysteryshipComponent.hpp"
 #include "Components/BlockComponent.hpp"
+#include "Components/ObstacleComponent.hpp"
 #include "Systems/DrawSystem.hpp"
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Systems/AiUpdateSystem.hpp"
@@ -43,6 +44,7 @@ void Game::RegisterComponents()
     ecs.RegisterComponent<AlienComponent>();
     ecs.RegisterComponent<MysteryshipComponent>();
     ecs.RegisterComponent<BlockComponent>();
+    ecs.RegisterComponent<ObstacleComponent>();
 }
 
 void Game::RegisterSystems()
@@ -128,20 +130,8 @@ void Game::GenerateMysteryship()
 
 void Game::GenerateObstacles()
 {
-    std::vector<std::vector<int>> grid = {
-        {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
-        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
-        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-        {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1}};
+    uint64_t obstacleId = ecs.GetNewEntity();
+    auto &grid = ecs.GetComponent<ObstacleComponent>(obstacleId)->Grid;
 
     int obstacleWidth = grid[0].size() * 3;
     float gap = (GetScreenWidth() - (4 * obstacleWidth)) / 5;
