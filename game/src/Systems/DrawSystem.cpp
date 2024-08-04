@@ -5,6 +5,7 @@
 #include "Components/MysteryshipComponent.hpp"
 #include "Components/TransformComponent.hpp"
 #include "Components/TextureComponent.hpp"
+#include "Components/ActiveStateComponent.hpp"
 #include <iostream>
 
 void DrawSystem::Update()
@@ -29,12 +30,15 @@ void DrawSystem::Update()
             MysteryshipComponent* mysteryship = ECSContainer.TryGetComponent<MysteryshipComponent>(component.EntityId);
             if (mysteryship)
             {
-                if (mysteryship->Active)
+                ActiveStateComponent* active = ECSContainer.TryGetComponent<ActiveStateComponent>(component.EntityId);
+                if (active)
                 {
-                    TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
-                    DrawTextureV(component.Texture, transform->Position, WHITE);
+                    if (active->Active)
+                    {
+                        TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
+                        DrawTextureV(component.Texture, transform->Position, WHITE);
+                    }
                 }
-                
             }
         });
 }

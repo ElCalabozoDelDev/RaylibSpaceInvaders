@@ -2,6 +2,7 @@
 #include "Components/MysteryshipComponent.hpp"
 #include "Components/TransformComponent.hpp"
 #include "Components/TextureComponent.hpp"
+#include "Components/ActiveStateComponent.hpp"
 
 void MysteryshipSpawnSystem::Update()
 {
@@ -36,7 +37,11 @@ void MysteryshipSpawnSystem::Spawn()
         if (!texture)
             return;
 
-        component.Active = true;
+        ActiveStateComponent* active = ECSContainer.TryGetComponent<ActiveStateComponent>(component.EntityId);
+        if (!active)
+            return;
+
+        active->Active = true;
         component.Speed = GetRandomValue(1, 3);
         transform->Position.y = 90;
         int side = GetRandomValue(0, 1);

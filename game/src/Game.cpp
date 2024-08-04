@@ -11,6 +11,7 @@
 #include "Components/MysteryshipComponent.hpp"
 #include "Components/BlockComponent.hpp"
 #include "Components/ObstacleComponent.hpp"
+#include "Components/ActiveStateComponent.hpp"
 #include "Systems/DrawSystem.hpp"
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Systems/AiUpdateSystem.hpp"
@@ -45,6 +46,7 @@ void Game::RegisterComponents()
     ecs.RegisterComponent<MysteryshipComponent>();
     ecs.RegisterComponent<BlockComponent>();
     ecs.RegisterComponent<ObstacleComponent>();
+    ecs.RegisterComponent<ActiveStateComponent>();
 }
 
 void Game::RegisterSystems()
@@ -123,7 +125,7 @@ void Game::GenerateMysteryship()
     ecs.GetComponent<TransformComponent>(mysteryShipId)->Angle = 0;
     ecs.GetComponent<AiControllerComponent>(mysteryShipId)->Direction = {0, 0};
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Speed = GetRandomValue(1, 3);
-    ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Active = false;
+    ecs.GetComponent<ActiveStateComponent>(mysteryShipId)->Active = false;
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Timer = 0.0;
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Cooldown = GetRandomValue(10, 20);
 }
