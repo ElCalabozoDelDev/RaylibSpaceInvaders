@@ -8,6 +8,5 @@ private:
     /* data */
 public:
     DEFINE_COMPONENT(SpaceshipComponent);
-    double LastShootTime;
     Sound ShootSound;
 };

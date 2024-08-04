@@ -4,6 +4,8 @@
 #include "Components/PlayerInputComponent.hpp"
 #include "Components/TransformComponent.hpp"
 #include "Components/TextureComponent.hpp"
+#include "Components/LaserComponent.hpp"
+#include "Components/ActiveStateComponent.hpp"
 #include <iostream>
 
 
@@ -39,6 +41,15 @@ void PlayerUpdateSystem::Update()
 					move.x = 0;
 				}
 			}
+
+			if(IsKeyPressed(KEY_SPACE))
+			{
+				component.Shoot = true;
+			} else
+			{
+				component.Shoot = false;
+			}
+
 			transform->Position = Vector2Add(transform->Position, move);
 		});
 }

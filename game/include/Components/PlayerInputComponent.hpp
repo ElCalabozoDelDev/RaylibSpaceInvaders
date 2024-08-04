@@ -9,4 +9,5 @@ public:
 
 	float LinearSpeed = 100;
 	float RotationSpeed = 180;
+	bool Shoot;
 };

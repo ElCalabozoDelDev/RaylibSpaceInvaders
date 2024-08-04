@@ -6,6 +6,7 @@
 #include "Components/AlienComponent.hpp"
 #include "Components/MysteryshipComponent.hpp"
 #include "Components/ActiveStateComponent.hpp"
+#include "Components/SpeedComponent.hpp"
 
 void AiUpdateSystem::Update()
 {
@@ -88,10 +89,13 @@ void AiUpdateSystem::MoveMysteryship()
         ActiveStateComponent* active = ECSContainer.TryGetComponent<ActiveStateComponent>(component.EntityId);
         if (!active)
             return;
+        SpeedComponent* speed = ECSContainer.TryGetComponent<SpeedComponent>(component.EntityId);
+        if (!speed)
+            return;
 
         if (active->Active)
         {
-            transform->Position.x += component.Speed;
+            transform->Position.x += speed->Speed;
             if (transform->Position.x > GetScreenWidth() - texture->Texture.width - 25 || transform->Position.x < 25)
             {
                 active->Active = false;

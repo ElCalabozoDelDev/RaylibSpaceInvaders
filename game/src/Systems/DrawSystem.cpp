@@ -6,6 +6,8 @@
 #include "Components/TransformComponent.hpp"
 #include "Components/TextureComponent.hpp"
 #include "Components/ActiveStateComponent.hpp"
+#include "Components/LaserComponent.hpp"
+#include "Components/BlockComponent.hpp"
 #include <iostream>
 
 void DrawSystem::Update()
@@ -40,5 +42,28 @@ void DrawSystem::Update()
                     }
                 }
             }
+
+            // Draw lasers
+            LaserComponent* laser = ECSContainer.TryGetComponent<LaserComponent>(component.EntityId);
+            if (laser)
+            {
+                TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
+                if (transform)
+                {
+                    ActiveStateComponent* active = ECSContainer.TryGetComponent<ActiveStateComponent>(component.EntityId);
+                    if (active && active->Active)
+                    {
+                        DrawRectangleV(transform->Position, {4, 15}, {243, 216, 63, 255});
+                    }
+                }
+            }
+        });
+
+        // Draw blocks
+        DoForEachComponent<TransformComponent>([this](TransformComponent& component)
+        {
+            BlockComponent* block = ECSContainer.TryGetComponent<BlockComponent>(component.EntityId);
+            if (block)
+                DrawRectangleV(component.Position, block->Size, block->Color);
         });
 }

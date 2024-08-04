@@ -3,6 +3,7 @@
 #include "Components/TransformComponent.hpp"
 #include "Components/TextureComponent.hpp"
 #include "Components/ActiveStateComponent.hpp"
+#include "Components/SpeedComponent.hpp"
 
 void MysteryshipSpawnSystem::Update()
 {
@@ -41,19 +42,23 @@ void MysteryshipSpawnSystem::Spawn()
         if (!active)
             return;
 
+        SpeedComponent* speed = ECSContainer.TryGetComponent<SpeedComponent>(component.EntityId);
+        if (!speed)
+            return;
+
         active->Active = true;
-        component.Speed = GetRandomValue(1, 3);
+        speed->Speed = GetRandomValue(1, 3);
         transform->Position.y = 90;
         int side = GetRandomValue(0, 1);
         if (side == 0)
         {
             transform->Position.x = 25;
-            component.Speed = 3;
+            speed->Speed = 3;
         }
         else
         {
             transform->Position.x = GetScreenWidth() - texture->Texture.width - 25;
-            component.Speed = -3;
+            speed->Speed = -3;
         }
     });
 }

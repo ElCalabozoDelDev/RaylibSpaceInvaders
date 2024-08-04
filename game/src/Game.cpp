@@ -12,11 +12,13 @@
 #include "Components/BlockComponent.hpp"
 #include "Components/ObstacleComponent.hpp"
 #include "Components/ActiveStateComponent.hpp"
+#include "Components/LaserComponent.hpp"
+#include "Components/SpeedComponent.hpp"
 #include "Systems/DrawSystem.hpp"
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Systems/AiUpdateSystem.hpp"
 #include "Systems/MysteryshipSpawnSystem.hpp"
-#include "Systems/RenderSystem.hpp"
+#include "Systems/LaserShootSystem.hpp"
 
 #define _ECS_IMPLEMENTATION
 #include "ecs.h"
@@ -47,16 +49,18 @@ void Game::RegisterComponents()
     ecs.RegisterComponent<BlockComponent>();
     ecs.RegisterComponent<ObstacleComponent>();
     ecs.RegisterComponent<ActiveStateComponent>();
+    ecs.RegisterComponent<LaserComponent>();
+    ecs.RegisterComponent<SpeedComponent>();
 }
 
 void Game::RegisterSystems()
 {
     // (updated in order)
-    ecs.RegisterSystem<AiUpdateSystem>();
     ecs.RegisterSystem<PlayerUpdateSystem>();
+    ecs.RegisterSystem<AiUpdateSystem>();
     ecs.RegisterSystem<MysteryshipSpawnSystem>();
+    ecs.RegisterSystem<LaserShootSystem>();
     ecs.RegisterSystem<DrawSystem>();
-    ecs.RegisterSystem<RenderSystem>();
 }
 
 void Game::CreateEntities()
@@ -78,8 +82,9 @@ void Game::GenerateSpaceship()
     ecs.GetComponent<TransformComponent>(spaceshipId)->Position = {spaceshipX, spaceshipY};
     ecs.GetComponent<TransformComponent>(spaceshipId)->Angle = 0;
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->LinearSpeed = 5;
+    ecs.GetComponent<PlayerInputComponent>(spaceshipId)->Shoot = false;
     ecs.GetComponent<SpaceshipComponent>(spaceshipId)->ShootSound = LoadSound("resources/sounds/laser.ogg");
-    ecs.GetComponent<SpaceshipComponent>(spaceshipId)->LastShootTime = 0.0;
+    ecs.GetComponent<LaserComponent>(spaceshipId)->LastShootTime = 0.0;
 }
 
 void Game::GenerateAliens()
@@ -124,7 +129,7 @@ void Game::GenerateMysteryship()
     ecs.GetComponent<TransformComponent>(mysteryShipId)->Position = {0, 90};
     ecs.GetComponent<TransformComponent>(mysteryShipId)->Angle = 0;
     ecs.GetComponent<AiControllerComponent>(mysteryShipId)->Direction = {0, 0};
-    ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Speed = GetRandomValue(1, 3);
+    ecs.GetComponent<SpeedComponent>(mysteryShipId)->Speed = GetRandomValue(1, 3);
     ecs.GetComponent<ActiveStateComponent>(mysteryShipId)->Active = false;
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Timer = 0.0;
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Cooldown = GetRandomValue(10, 20);
