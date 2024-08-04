@@ -20,8 +20,8 @@ void LaserShootSystem::Update()
                 if (!playerTransform)
                     return;
 
-                ECSContainer.GetComponent<TransformComponent>(laserId)->Position = {playerTransform->Position.x + 22, playerTransform->Position.y}; // Ajustar posición del láser
                 ECSContainer.GetComponent<LaserComponent>(laserId); // Añadir el componente vacío
+                ECSContainer.GetComponent<TransformComponent>(laserId)->Position = {playerTransform->Position.x + 22, playerTransform->Position.y}; // Ajustar posición del láser
                 ECSContainer.GetComponent<SpeedComponent>(laserId)->Speed = 3; // Velocidad del láser
                 ECSContainer.GetComponent<ActiveStateComponent>(laserId)->Active = true; // Activar el láser
                 component.LastShootTime = currentTime;
