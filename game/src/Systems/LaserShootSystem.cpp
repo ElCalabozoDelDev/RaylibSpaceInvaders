@@ -11,7 +11,8 @@ void LaserShootSystem::Update()
 {
     DoForEachComponent<PlayerInputComponent>([this](PlayerInputComponent &component)
         {
-            if (component.Shoot)
+            float currentTime = GetTime();
+            if (component.Shoot && (currentTime - component.LastShootTime >= component.ShootCooldown))
             {
                 uint64_t laserId = ECSContainer.GetNewEntity();
                 TransformComponent* playerTransform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
@@ -20,10 +21,10 @@ void LaserShootSystem::Update()
                     return;
 
                 ECSContainer.GetComponent<TransformComponent>(laserId)->Position = {playerTransform->Position.x + 22, playerTransform->Position.y}; // Ajustar posición del láser
-                ECSContainer.GetComponent<LaserComponent>(laserId)->LastShootTime = GetTime();
-                ECSContainer.GetComponent<LaserComponent>(laserId)->ShootCooldown = 0.5; // Ejemplo de cooldown
+                ECSContainer.GetComponent<LaserComponent>(laserId); // Añadir el componente vacío
                 ECSContainer.GetComponent<SpeedComponent>(laserId)->Speed = 3; // Velocidad del láser
                 ECSContainer.GetComponent<ActiveStateComponent>(laserId)->Active = true; // Activar el láser
+                component.LastShootTime = currentTime;
             }
         });
 

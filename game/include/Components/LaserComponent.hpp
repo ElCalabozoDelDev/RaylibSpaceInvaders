@@ -6,6 +6,5 @@ class LaserComponent : public Component
 {
 public:
     DEFINE_COMPONENT(LaserComponent);
-    float LastShootTime;
-    float ShootCooldown;
+
 };

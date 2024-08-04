@@ -83,8 +83,9 @@ void Game::GenerateSpaceship()
     ecs.GetComponent<TransformComponent>(spaceshipId)->Angle = 0;
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->LinearSpeed = 5;
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->Shoot = false;
+    ecs.GetComponent<PlayerInputComponent>(spaceshipId)->LastShootTime = 0.0;
+    ecs.GetComponent<PlayerInputComponent>(spaceshipId)->ShootCooldown = 0.5;
     ecs.GetComponent<SpaceshipComponent>(spaceshipId)->ShootSound = LoadSound("resources/sounds/laser.ogg");
-    ecs.GetComponent<LaserComponent>(spaceshipId)->LastShootTime = 0.0;
 }
 
 void Game::GenerateAliens()
