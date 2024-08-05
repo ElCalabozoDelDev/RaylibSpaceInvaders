@@ -8,5 +8,4 @@ private:
     /* data */
 public:
     DEFINE_COMPONENT(SpaceshipComponent);
-    Sound ShootSound;
 };

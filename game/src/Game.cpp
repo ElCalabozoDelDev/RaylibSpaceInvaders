@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include "patch.hpp"
 #include <string>
+#include <iostream>
+#include <fstream>
 #include "Components/PlayerInputComponent.hpp"
 #include "Components/TransformComponent.hpp"
 #include "Components/TextureComponent.hpp"
@@ -14,11 +16,13 @@
 #include "Components/ActiveStateComponent.hpp"
 #include "Components/LaserComponent.hpp"
 #include "Components/SpeedComponent.hpp"
+#include "Components/CollisionComponent.hpp"
 #include "Systems/DrawSystem.hpp"
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Systems/AiUpdateSystem.hpp"
 #include "Systems/MysteryshipSpawnSystem.hpp"
 #include "Systems/LaserShootSystem.hpp"
+#include "Systems/CollisionSystem.hpp"
 
 #define _ECS_IMPLEMENTATION
 #include "ecs.h"
@@ -31,10 +35,13 @@ Game::Game()
     RegisterComponents();
     RegisterSystems();
     CreateEntities();
+    LoadSounds();
+    run = true;
 }
 
 Game::~Game()
 {
+    UnloadSounds();
 }
 
 void Game::RegisterComponents()
@@ -51,12 +58,14 @@ void Game::RegisterComponents()
     ecs.RegisterComponent<ActiveStateComponent>();
     ecs.RegisterComponent<LaserComponent>();
     ecs.RegisterComponent<SpeedComponent>();
+    ecs.RegisterComponent<CollisionComponent>();
 }
 
 void Game::RegisterSystems()
 {
     // (updated in order)
     ecs.RegisterSystem<PlayerUpdateSystem>();
+    ecs.RegisterSystem<CollisionSystem>();
     ecs.RegisterSystem<AiUpdateSystem>();
     ecs.RegisterSystem<MysteryshipSpawnSystem>();
     ecs.RegisterSystem<LaserShootSystem>();
@@ -75,8 +84,8 @@ void Game::GenerateSpaceship()
 {
     uint64_t spaceshipId = ecs.GetNewEntity();
     ecs.GetComponent<TextureComponent>(spaceshipId)->Texture = LoadTexture("resources/graphics/spaceship.png");
-    int spaceshipWidth = ecs.GetComponent<TextureComponent>(spaceshipId)->Texture.width;
-    int spaceshipHeight = ecs.GetComponent<TextureComponent>(spaceshipId)->Texture.height;
+    float spaceshipWidth = ecs.GetComponent<TextureComponent>(spaceshipId)->Texture.width;
+    float spaceshipHeight = ecs.GetComponent<TextureComponent>(spaceshipId)->Texture.height;
     float spaceshipX = (GetScreenWidth() - spaceshipWidth) / 2;
     float spaceshipY = (GetScreenHeight() - spaceshipHeight - 100);
     ecs.GetComponent<TransformComponent>(spaceshipId)->Position = {spaceshipX, spaceshipY};
@@ -85,7 +94,8 @@ void Game::GenerateSpaceship()
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->Shoot = false;
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->LastShootTime = 0.0;
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->ShootCooldown = 0.5;
-    ecs.GetComponent<SpaceshipComponent>(spaceshipId)->ShootSound = LoadSound("resources/sounds/laser.ogg");
+    ecs.GetComponent<SpaceshipComponent>(spaceshipId);
+    ecs.GetComponent<CollisionComponent>(spaceshipId)->BoundingBox = {0, 0, spaceshipWidth, spaceshipHeight};
 }
 
 void Game::GenerateAliens()
@@ -117,6 +127,7 @@ void Game::GenerateAliens()
             ecs.GetComponent<TransformComponent>(alienId)->Angle = 0;
             ecs.GetComponent<AiControllerComponent>(alienId)->Direction = {1, 0};
             ecs.GetComponent<AlienComponent>(alienId)->Type = type;
+            ecs.GetComponent<CollisionComponent>(alienId)->BoundingBox = {x, y, (float)alienWidth, (float)alienHeight};
         }
     }
 }
@@ -164,8 +175,74 @@ void Game::GenerateObstacles()
     }
 }
 
+void Game::LoadSounds()
+{
+    explosionSound = LoadSound("resources/sounds/explosion.ogg");
+    shootSound = LoadSound("resources/sounds/laser.ogg");
+}
+
+void Game::UnloadSounds()
+{
+    UnloadSound(explosionSound);
+    UnloadSound(shootSound);
+}
+
 void Game::Update()
 {
     // Update the game
     ecs.Update();
+}
+
+void Game::CheckHighScore()
+{
+    if (score > highScore)
+    {
+        highScore = score;
+        SaveHighScore(highScore);
+    }
+}
+
+void Game::SaveHighScore(int score)
+{
+    std::ofstream file("resources/highscore.txt");
+    if (file.is_open())
+    {
+        file << score;
+        file.close();
+    } else {
+        std::cerr << "Unable to save highscore to file" << std::endl;
+    }
+}
+
+int Game::LoadHighScore()
+{
+    int score = 0;
+    std::ifstream file("resources/highscore.txt");
+    if (file.is_open())
+    {
+        file >> score;
+        file.close();
+    } else {
+        std::cerr << "Unable to load highscore from file" << std::endl;
+    }
+    return score;
+}
+
+int Game::GetAliensCount()
+{
+    int count = 0;
+    ecs.DoForEachEntity([&count](uint64_t entityId)
+    {
+        if (ecs.TryGetComponent<AlienComponent>(entityId))
+        {
+            count++;
+        }
+    });
+    return count;
+}
+
+void Game::GameOver()
+{
+    std::cout << "Game Over" << std::endl;
+    run = false;
 }

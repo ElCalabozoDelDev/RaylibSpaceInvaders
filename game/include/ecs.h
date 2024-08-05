@@ -175,6 +175,9 @@ public:
 		return reinterpret_cast<T*>(table->second->TryGet(id));
 	}
 
+    template <typename Func>
+    void DoForEachEntity(Func func);
+
     uint64_t GetNewEntity();
 
     void RemoveEntity(uint64_t id);
@@ -246,4 +249,18 @@ inline uint64_t ECS::GetNewEntity()
 
     return id;
 }
+
+template <typename Func>
+void ECS::DoForEachEntity(Func func)
+{
+    for (const auto& pair : Tables)
+    {
+        auto& table = pair.second;
+        for (const auto& component : table->Components)
+        {
+            func(component.EntityId);
+        }
+    }
+}
 #endif //_ECS_IMPLEMENTATION
+

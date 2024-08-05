@@ -4,7 +4,13 @@
 class Game
 {
 private:
+    Sound explosionSound;
+    Sound shootSound;
+    int Lives;
     static Game *s_pInstance;
+    int score;
+    int highScore;
+    bool run;
     Game(/* args */);
     ~Game();
 
@@ -15,7 +21,10 @@ private:
     void GenerateAliens();
     void GenerateMysteryship();
     void GenerateObstacles();
-
+    void LoadSounds();
+    void UnloadSounds();
+    void SaveHighScore(int score);
+    int LoadHighScore();
 public:
     static Game *Instance()
     {
@@ -28,4 +37,13 @@ public:
         return s_pInstance;
     }
     void Update();
+    Sound GetExplosionSound() { return explosionSound; }
+    Sound GetShootSound() { return shootSound; }
+    int GetLives() { return Lives; }
+    void DecreaseLives() { Lives--; }
+    int GetScore() { return score; }
+    int GetHighScore() { return highScore; }
+    int GetAliensCount();
+    void CheckHighScore();
+    void GameOver();
 };

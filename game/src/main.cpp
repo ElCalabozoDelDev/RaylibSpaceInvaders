@@ -18,7 +18,7 @@ int main()
 	// set up the window
 	InitWindow(screenWidth + offset, screenHeight + 2 * offset, "C++ Space Invaders");
     SetTargetFPS(60);
-
+    InitAudioDevice();
     Game *game = Game::Instance();
 
     // game loop
@@ -33,5 +33,6 @@ int main()
     }
     // Close window and OpenGL context
     CloseWindow();
+    CloseAudioDevice();
     return 0;
 }

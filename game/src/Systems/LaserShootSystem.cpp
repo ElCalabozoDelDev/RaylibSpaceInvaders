@@ -5,7 +5,9 @@
 #include "Components/SpeedComponent.hpp"
 #include "Components/PlayerInputComponent.hpp"
 #include "Components/ActiveStateComponent.hpp"
+#include "Components/SpaceshipComponent.hpp"
 #include <iostream>
+#include "Game.hpp"
 
 void LaserShootSystem::Update()
 {
@@ -16,15 +18,15 @@ void LaserShootSystem::Update()
             {
                 uint64_t laserId = ECSContainer.GetNewEntity();
                 TransformComponent* playerTransform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
-
                 if (!playerTransform)
                     return;
-
+                    
                 ECSContainer.GetComponent<LaserComponent>(laserId); // Añadir el componente vacío
                 ECSContainer.GetComponent<TransformComponent>(laserId)->Position = {playerTransform->Position.x + 22, playerTransform->Position.y}; // Ajustar posición del láser
                 ECSContainer.GetComponent<SpeedComponent>(laserId)->Speed = 3; // Velocidad del láser
                 ECSContainer.GetComponent<ActiveStateComponent>(laserId)->Active = true; // Activar el láser
                 component.LastShootTime = currentTime;
+                PlaySound(Game::Instance()->GetShootSound());
             }
         });
 
