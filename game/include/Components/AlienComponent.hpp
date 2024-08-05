@@ -6,4 +6,5 @@ class AlienComponent : public Component
 public:
     DEFINE_COMPONENT(AlienComponent);
     int Type;
+    int Score() { return 100 * Type; }
 };

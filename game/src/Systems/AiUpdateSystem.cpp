@@ -7,6 +7,7 @@
 #include "Components/MysteryshipComponent.hpp"
 #include "Components/ActiveStateComponent.hpp"
 #include "Components/SpeedComponent.hpp"
+#include "Components/CollisionComponent.hpp"
 
 void AiUpdateSystem::Update()
 {
@@ -53,11 +54,9 @@ void AiUpdateSystem::MoveAliens(bool changeDirection)
     DoForEachComponent<AlienComponent>([this, changeDirection](AlienComponent &component)
                                               {
         TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
-        if (!transform)
-            return;
-
         AiControllerComponent* controller = ECSContainer.TryGetComponent<AiControllerComponent>(component.EntityId);
-        if (!controller)
+        CollisionComponent* collision = ECSContainer.TryGetComponent<CollisionComponent>(component.EntityId);
+        if (!collision || !controller || !transform)
             return;
 
         Vector2 move = {0, 0};
@@ -71,7 +70,12 @@ void AiUpdateSystem::MoveAliens(bool changeDirection)
         move.x = controller->Direction.x;
 
         // Mueve los aliens
-        transform->Position = Vector2Add(transform->Position, move); });
+        transform->Position = Vector2Add(transform->Position, move); 
+        
+        // Actualiza las cajas de colisión
+        collision->BoundingBox.x = transform->Position.x;
+        collision->BoundingBox.y = transform->Position.y;});
+
 }
 
 void AiUpdateSystem::MoveMysteryship()
@@ -92,6 +96,10 @@ void AiUpdateSystem::MoveMysteryship()
         SpeedComponent* speed = ECSContainer.TryGetComponent<SpeedComponent>(component.EntityId);
         if (!speed)
             return;
+        
+        CollisionComponent* collision = ECSContainer.TryGetComponent<CollisionComponent>(component.EntityId);
+        if (!collision)
+            return;
 
         if (active->Active)
         {
@@ -100,5 +108,9 @@ void AiUpdateSystem::MoveMysteryship()
             {
                 active->Active = false;
             }
-        } });
+        } 
+        // Actualiza la caja de colisión
+        collision->BoundingBox.x = transform->Position.x;
+        collision->BoundingBox.y = transform->Position.y;
+        });
 }

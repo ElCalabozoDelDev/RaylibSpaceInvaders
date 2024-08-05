@@ -53,7 +53,7 @@ void DrawSystem::Update()
             ActiveStateComponent* active = ECSContainer.TryGetComponent<ActiveStateComponent>(component.EntityId);
             if (active && active->Active)
             {
-                DrawRectangleV(component.Position, {4, 15}, {243, 216, 63, 255});
+                DrawRectangleV(component.Position, laser->Size, {243, 216, 63, 255});
             }
         }
     });

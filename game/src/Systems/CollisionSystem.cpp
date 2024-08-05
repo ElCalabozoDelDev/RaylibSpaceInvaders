@@ -9,6 +9,7 @@
 #include "Components/ActiveStateComponent.hpp"
 #include "Components/MysteryshipComponent.hpp"
 #include "Components/TextureComponent.hpp"
+#include "Components/BlockComponent.hpp"
 #include "Game.hpp"
 #include <iostream>
 
@@ -19,183 +20,80 @@ void CollisionSystem::Update()
 
 void CollisionSystem::CheckCollisions()
 {
-    // Colisiones entre láseres de la nave y alienígenas
+    // Lasers de la nave
     DoForEachComponent<LaserComponent>([this](LaserComponent &laser)
     {
-        if (!ECSContainer.TryGetComponent<ActiveStateComponent>(laser.EntityId)->Active)
-            return;
-
-        TransformComponent* laserTransform = ECSContainer.TryGetComponent<TransformComponent>(laser.EntityId);
-        CollisionComponent* laserCollision = ECSContainer.TryGetComponent<CollisionComponent>(laser.EntityId);
-        if (!laserTransform || !laserCollision)
-            return;
-        laserCollision->BoundingBox = {laserTransform->Position.x, laserTransform->Position.y, 2, 8};
-        DoForEachComponent<AlienComponent>([this, &laserTransform, &laserCollision, &laser](AlienComponent &alien)
+        // Colisiones con los aliens
+        DoForEachComponent<AlienComponent>([this, &laser](AlienComponent &alien)
         {
-            TransformComponent* alienTransform = ECSContainer.TryGetComponent<TransformComponent>(alien.EntityId);
-            CollisionComponent* alienCollision = ECSContainer.TryGetComponent<CollisionComponent>(alien.EntityId);
-            TextureComponent* alienTexture = ECSContainer.TryGetComponent<TextureComponent>(alien.EntityId);
-            if (!alienTransform || !alienCollision || !alienTexture)
+            CollisionComponent *laserCollision = ECSContainer.TryGetComponent<CollisionComponent>(laser.EntityId);
+            if (!laserCollision)
                 return;
-            alienCollision->BoundingBox = {alienTransform->Position.x, alienTransform->Position.y, (float)alienTexture->Texture.width, (float)alienTexture->Texture.height};
+            CollisionComponent *alienCollision = ECSContainer.TryGetComponent<CollisionComponent>(alien.EntityId);
+            if (!alienCollision)
+                return;
+
             if (CheckCollisionRecs(laserCollision->BoundingBox, alienCollision->BoundingBox))
             {
-                std::cout << "Colisión" << std::endl;
-                PlaySound(Game::Instance()->GetExplosionSound());
-                // Handle score, game logic, etc.
-                
+                Game::Instance()->AddScore(alien.Score());
+                Game::Instance()->CheckHighScore();
                 ECSContainer.RemoveEntity(laser.EntityId);
                 ECSContainer.RemoveEntity(alien.EntityId);
-                // Verificar si hay que actualizar el puntaje
-                Game::Instance()->CheckHighScore();
-                if (Game::Instance()->GetAliensCount() == 0)
-                {
-                    Game::Instance()->GameOver();
-                }
-            }
-        });
-
-        // Colisiones entre láseres y obstáculos
-        DoForEachComponent<ObstacleComponent>([this, &laser, laserTransform, laserCollision](ObstacleComponent &obstacle)
-        {
-            for (int i = 0; i < obstacle.Grid.size(); i++)
-            {
-                for (int j = 0; j < obstacle.Grid[i].size(); j++)
-                {
-                    if (obstacle.Grid[i][j] == 1)
-                    {
-                        Rectangle blockRect = {
-                            laserTransform->Position.x + j * 3,
-                            laserTransform->Position.y + i * 3,
-                            3,
-                            3
-                        };
-                        if (CheckCollisionRecs(laserCollision->BoundingBox, blockRect))
-                        {
-                            obstacle.Grid[i][j] = 0; // Remove block
-                            ECSContainer.RemoveEntity(laser.EntityId);
-                            break;
-                        }
-                    }
-                }
-            }
-        });
-
-        // Colisiones entre láseres y la nave espacial misteriosa
-        DoForEachComponent<MysteryshipComponent>([this, &laserTransform, &laserCollision, &laser](MysteryshipComponent &mysteryShip)
-        {
-            TransformComponent* mysteryTransform = ECSContainer.TryGetComponent<TransformComponent>(mysteryShip.EntityId);
-            CollisionComponent* mysteryCollision = ECSContainer.TryGetComponent<CollisionComponent>(mysteryShip.EntityId);
-
-            if (mysteryTransform && mysteryCollision && CheckCollisionRecs(laserCollision->BoundingBox, mysteryCollision->BoundingBox))
-            {
                 PlaySound(Game::Instance()->GetExplosionSound());
-                // Handle score, game logic, etc.
-                ECSContainer.RemoveEntity(mysteryShip.EntityId);
-                ECSContainer.RemoveEntity(laser.EntityId);
-                Game::Instance()->CheckHighScore();
-            }
-        });
-    });
-
-    // Colisiones entre láseres de alienígenas y la nave del jugador
-    DoForEachComponent<LaserComponent>([this](LaserComponent &laser)
-    {
-        if (!ECSContainer.TryGetComponent<ActiveStateComponent>(laser.EntityId)->Active)
-            return;
-
-        TransformComponent* laserTransform = ECSContainer.TryGetComponent<TransformComponent>(laser.EntityId);
-        CollisionComponent* laserCollision = ECSContainer.TryGetComponent<CollisionComponent>(laser.EntityId);
-
-        if (!laserTransform || !laserCollision)
-            return;
-
-        DoForEachComponent<SpaceshipComponent>([this, &laserTransform, &laserCollision, &laser](SpaceshipComponent &spaceship)
-        {
-            TransformComponent* spaceshipTransform = ECSContainer.TryGetComponent<TransformComponent>(spaceship.EntityId);
-            CollisionComponent* spaceshipCollision = ECSContainer.TryGetComponent<CollisionComponent>(spaceship.EntityId);
-
-            if (spaceshipTransform && spaceshipCollision && CheckCollisionRecs(laserCollision->BoundingBox, spaceshipCollision->BoundingBox))
-            {
-                Game::Instance()->DecreaseLives();
-                if (Game::Instance()->GetLives() == 0)
+                if (GetAliensCount() == 0)
                 {
                     Game::Instance()->GameOver();
                 }
+            }
+        });
 
+        // Colisiones con los obstáculos
+
+        DoForEachComponent<BlockComponent>([this, &laser](BlockComponent &block)
+        {
+            CollisionComponent *laserCollision = ECSContainer.TryGetComponent<CollisionComponent>(laser.EntityId);
+            if (!laserCollision)
+                return;
+            CollisionComponent *blockCollision = ECSContainer.TryGetComponent<CollisionComponent>(block.EntityId);
+            if (!blockCollision)
+                return;
+
+            if (CheckCollisionRecs(laserCollision->BoundingBox, blockCollision->BoundingBox))
+            {
                 ECSContainer.RemoveEntity(laser.EntityId);
+                ECSContainer.RemoveEntity(block.EntityId);
             }
         });
 
-        // Colisiones entre láseres de alienígenas y obstáculos
-        DoForEachComponent<ObstacleComponent>([this, &laser, laserTransform, laserCollision](ObstacleComponent &obstacle)
+        // Colisiones con la nave misteriosa
+        DoForEachComponent<MysteryshipComponent>([this, &laser](MysteryshipComponent &mysteryship)
         {
-            for (int i = 0; i < obstacle.Grid.size(); i++)
+            CollisionComponent *laserCollision = ECSContainer.TryGetComponent<CollisionComponent>(laser.EntityId);
+            if (!laserCollision)
+                return;
+            CollisionComponent *mysteryshipCollision = ECSContainer.TryGetComponent<CollisionComponent>(mysteryship.EntityId);
+            if (!mysteryshipCollision)
+                return;
+
+            if (CheckCollisionRecs(laserCollision->BoundingBox, mysteryshipCollision->BoundingBox))
             {
-                for (int j = 0; j < obstacle.Grid[i].size(); j++)
-                {
-                    if (obstacle.Grid[i][j] == 1)
-                    {
-                        Rectangle blockRect = {
-                            laserTransform->Position.x + j * 3,
-                            laserTransform->Position.y + i * 3,
-                            3,
-                            3
-                        };
-                        if (CheckCollisionRecs(laserCollision->BoundingBox, blockRect))
-                        {
-                            obstacle.Grid[i][j] = 0; // Remove block
-                            ECSContainer.RemoveEntity(laser.EntityId);
-                            break;
-                        }
-                    }
-                }
+                Game::Instance()->AddScore(mysteryship.Score);
+                Game::Instance()->CheckHighScore();
+                ECSContainer.RemoveEntity(laser.EntityId);
+                ECSContainer.RemoveEntity(mysteryship.EntityId);
+                PlaySound(Game::Instance()->GetExplosionSound());
             }
         });
-    });
 
-    // Colisiones entre alienígenas y obstáculos
-    DoForEachComponent<AlienComponent>([this](AlienComponent &alien)
+    });
+}
+
+int CollisionSystem::GetAliensCount()
+{
+    int count = 0;
+    DoForEachComponent<AlienComponent>([&count](AlienComponent &alien)
     {
-        TransformComponent* alienTransform = ECSContainer.TryGetComponent<TransformComponent>(alien.EntityId);
-        CollisionComponent* alienCollision = ECSContainer.TryGetComponent<CollisionComponent>(alien.EntityId);
-
-        if (!alienTransform || !alienCollision)
-            return;
-
-        DoForEachComponent<ObstacleComponent>([this, &alien, alienTransform, alienCollision](ObstacleComponent &obstacle)
-        {
-            for (int i = 0; i < obstacle.Grid.size(); i++)
-            {
-                for (int j = 0; j < obstacle.Grid[i].size(); j++)
-                {
-                    if (obstacle.Grid[i][j] == 1)
-                    {
-                        Rectangle blockRect = {
-                            alienTransform->Position.x + j * 3,
-                            alienTransform->Position.y + i * 3,
-                            3,
-                            3
-                        };
-                        if (CheckCollisionRecs(alienCollision->BoundingBox, blockRect))
-                        {
-                            obstacle.Grid[i][j] = 0; // Remove block
-                        }
-                    }
-                }
-            }
-        });
-
-        // Colisiones entre alienígenas y la nave del jugador
-        DoForEachComponent<SpaceshipComponent>([this, &alienTransform, &alienCollision](SpaceshipComponent &spaceship)
-        {
-            TransformComponent* spaceshipTransform = ECSContainer.TryGetComponent<TransformComponent>(spaceship.EntityId);
-            CollisionComponent* spaceshipCollision = ECSContainer.TryGetComponent<CollisionComponent>(spaceship.EntityId);
-
-            if (spaceshipTransform && spaceshipCollision && CheckCollisionRecs(alienCollision->BoundingBox, spaceshipCollision->BoundingBox))
-            {
-                Game::Instance()->GameOver();
-            }
-        });
+        count++;
     });
+    return count;
 }

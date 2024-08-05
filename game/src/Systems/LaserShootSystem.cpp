@@ -22,11 +22,15 @@ void LaserShootSystem::Update()
                 if (!playerTransform)
                     return;
                     
-                ECSContainer.GetComponent<LaserComponent>(laserId); // Añadir el componente vacío
-                ECSContainer.GetComponent<TransformComponent>(laserId)->Position = {playerTransform->Position.x + 22, playerTransform->Position.y}; // Ajustar posición del láser
                 ECSContainer.GetComponent<SpeedComponent>(laserId)->Speed = 3; // Velocidad del láser
                 ECSContainer.GetComponent<ActiveStateComponent>(laserId)->Active = true; // Activar el láser
-                ECSContainer.GetComponent<CollisionComponent>(laserId); // Ajustar bounding box
+                auto &size = ECSContainer.GetComponent<LaserComponent>(laserId)->Size; // Añadir el componente vacío
+                auto& pos = ECSContainer.GetComponent<TransformComponent>(laserId)->Position = {playerTransform->Position.x + 22, playerTransform->Position.y}; // Ajustar posición del láser
+                auto& bbox = ECSContainer.GetComponent<CollisionComponent>(laserId)->BoundingBox; // Ajustar bounding box
+                bbox.x = pos.x;
+                bbox.y = pos.y;
+                bbox.width = size.x;
+                bbox.height = size.y;
                 component.LastShootTime = currentTime;
                 PlaySound(Game::Instance()->GetShootSound());
             }
@@ -41,6 +45,10 @@ void LaserShootSystem::Update()
             SpeedComponent* speed = ECSContainer.TryGetComponent<SpeedComponent>(component.EntityId);
             if (!speed)
                 return;
+            
+            CollisionComponent* collision = ECSContainer.TryGetComponent<CollisionComponent>(component.EntityId);
+            if (!collision)
+                return;
 
             transform->Position.y -= speed->Speed;
 
@@ -48,5 +56,8 @@ void LaserShootSystem::Update()
             {
                 ECSContainer.RemoveEntity(component.EntityId);
             }
+            // Actualizar bounding box
+            collision->BoundingBox.x = transform->Position.x;
+            collision->BoundingBox.y = transform->Position.y;
         });
 }

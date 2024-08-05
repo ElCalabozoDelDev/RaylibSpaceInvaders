@@ -43,7 +43,7 @@ public:
     void DecreaseLives() { Lives--; }
     int GetScore() { return score; }
     int GetHighScore() { return highScore; }
-    int GetAliensCount();
     void CheckHighScore();
+    void AddScore(int amount) { score += amount; }
     void GameOver();
 };

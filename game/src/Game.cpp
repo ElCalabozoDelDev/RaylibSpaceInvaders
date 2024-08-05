@@ -230,19 +230,6 @@ int Game::LoadHighScore()
     return score;
 }
 
-int Game::GetAliensCount()
-{
-    int count = 0;
-    ecs.DoForEachEntity([&count](uint64_t entityId)
-    {
-        if (ecs.TryGetComponent<AlienComponent>(entityId))
-        {
-            count++;
-        }
-    });
-    return count;
-}
-
 void Game::GameOver()
 {
     std::cout << "Game Over" << std::endl;

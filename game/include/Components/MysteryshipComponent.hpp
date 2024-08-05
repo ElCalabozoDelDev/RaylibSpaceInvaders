@@ -8,4 +8,5 @@ public:
     DEFINE_COMPONENT(MysteryshipComponent);
     float Timer;
     float Cooldown;
+    int Score = 500;
 };

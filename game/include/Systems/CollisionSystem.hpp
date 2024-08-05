@@ -10,4 +10,5 @@ public:
 
 private:
     void CheckCollisions();
+    int GetAliensCount();
 };
