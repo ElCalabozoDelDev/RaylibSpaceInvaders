@@ -65,10 +65,10 @@ void Game::RegisterSystems()
 {
     // (updated in order)
     ecs.RegisterSystem<PlayerUpdateSystem>();
-    ecs.RegisterSystem<CollisionSystem>();
     ecs.RegisterSystem<AiUpdateSystem>();
     ecs.RegisterSystem<MysteryshipSpawnSystem>();
     ecs.RegisterSystem<LaserShootSystem>();
+    ecs.RegisterSystem<CollisionSystem>();
     ecs.RegisterSystem<DrawSystem>();
 }
 
@@ -95,7 +95,7 @@ void Game::GenerateSpaceship()
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->LastShootTime = 0.0;
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->ShootCooldown = 0.5;
     ecs.GetComponent<SpaceshipComponent>(spaceshipId);
-    ecs.GetComponent<CollisionComponent>(spaceshipId)->BoundingBox = {0, 0, spaceshipWidth, spaceshipHeight};
+    ecs.GetComponent<CollisionComponent>(spaceshipId)->BoundingBox = {spaceshipX, spaceshipY, spaceshipWidth, spaceshipHeight};
 }
 
 void Game::GenerateAliens()
@@ -145,6 +145,7 @@ void Game::GenerateMysteryship()
     ecs.GetComponent<ActiveStateComponent>(mysteryShipId)->Active = false;
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Timer = 0.0;
     ecs.GetComponent<MysteryshipComponent>(mysteryShipId)->Cooldown = GetRandomValue(10, 20);
+    ecs.GetComponent<CollisionComponent>(mysteryShipId)->BoundingBox = {0, 90, (float)mysteryShipWidth, (float)mysteryShipHeight};
 }
 
 void Game::GenerateObstacles()
@@ -169,6 +170,7 @@ void Game::GenerateObstacles()
                     ecs.GetComponent<BlockComponent>(blockId)->Size = {3, 3};
                     ecs.GetComponent<BlockComponent>(blockId)->Color = {243, 216, 63, 255};
                     ecs.GetComponent<TransformComponent>(blockId)->Position = {basePosition.x + k * 3, basePosition.y + j * 3};
+                    ecs.GetComponent<CollisionComponent>(blockId)->BoundingBox = {basePosition.x + k * 3, basePosition.y + j * 3, 3, 3};
                 }
             }
         }

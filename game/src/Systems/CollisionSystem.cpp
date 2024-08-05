@@ -8,7 +8,9 @@
 #include "Components/ObstacleComponent.hpp"
 #include "Components/ActiveStateComponent.hpp"
 #include "Components/MysteryshipComponent.hpp"
+#include "Components/TextureComponent.hpp"
 #include "Game.hpp"
+#include <iostream>
 
 void CollisionSystem::Update()
 {
@@ -25,20 +27,20 @@ void CollisionSystem::CheckCollisions()
 
         TransformComponent* laserTransform = ECSContainer.TryGetComponent<TransformComponent>(laser.EntityId);
         CollisionComponent* laserCollision = ECSContainer.TryGetComponent<CollisionComponent>(laser.EntityId);
-
         if (!laserTransform || !laserCollision)
             return;
-
+        laserCollision->BoundingBox = {laserTransform->Position.x, laserTransform->Position.y, 2, 8};
         DoForEachComponent<AlienComponent>([this, &laserTransform, &laserCollision, &laser](AlienComponent &alien)
         {
             TransformComponent* alienTransform = ECSContainer.TryGetComponent<TransformComponent>(alien.EntityId);
             CollisionComponent* alienCollision = ECSContainer.TryGetComponent<CollisionComponent>(alien.EntityId);
-
-            if (!alienTransform || !alienCollision)
+            TextureComponent* alienTexture = ECSContainer.TryGetComponent<TextureComponent>(alien.EntityId);
+            if (!alienTransform || !alienCollision || !alienTexture)
                 return;
-
+            alienCollision->BoundingBox = {alienTransform->Position.x, alienTransform->Position.y, (float)alienTexture->Texture.width, (float)alienTexture->Texture.height};
             if (CheckCollisionRecs(laserCollision->BoundingBox, alienCollision->BoundingBox))
             {
+                std::cout << "Colisión" << std::endl;
                 PlaySound(Game::Instance()->GetExplosionSound());
                 // Handle score, game logic, etc.
                 

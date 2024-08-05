@@ -45,11 +45,11 @@ public:
     virtual bool ContainsEntity(uint64_t id) = 0;
     virtual Component* Get(uint64_t id) = 0;
     virtual Component* TryGet(uint64_t id) = 0;
+    virtual size_t Size() const = 0; // Método virtual puro para obtener el tamaño de la tabla
 
     virtual ~ComponentTableBase() = default;
 };
 
-// specific version of table class that stores the entities in a vector.
 template <class T>
 class ComponentTable : public ComponentTableBase
 {
@@ -78,15 +78,15 @@ public:
         // quick swap delete.
         // we get the last item in the list and copy it into the slot we want to delete, then delete off the end.
         // this prevents all the following items from having 'side down' into the empty slots
-		const auto& componentToDelete = Components[slot->second];
-		const auto& endComponent = Components[Components.size() - 1];
+        const auto& componentToDelete = Components[slot->second];
+        const auto& endComponent = Components[Components.size() - 1];
 
         Components[slot->second] = endComponent;
 
-        EntityIds[componentToDelete.EntityId] = slot->second;
+        EntityIds[endComponent.EntityId] = slot->second;
         EntityIds.erase(slot);
 
-        Components.erase(Components.begin() + (Components.size()-1));
+        Components.pop_back();
     }
 
     inline bool ContainsEntity(uint64_t id) override
@@ -94,7 +94,6 @@ public:
         return EntityIds.find(id) != EntityIds.end();
     }
 
-    // gets or adds a component for this entity ID
     inline Component* Get(uint64_t id) override
     {
         std::unordered_map<uint64_t, size_t>::iterator entityItr = EntityIds.find(id);
@@ -104,7 +103,6 @@ public:
         return &Components[entityItr->second];
     }
 
-    // gets or adds a component for this entity ID
     inline Component* TryGet(uint64_t id) override
     {
         std::unordered_map<uint64_t, size_t>::iterator entityItr = EntityIds.find(id);
@@ -114,9 +112,12 @@ public:
         return &Components[entityItr->second];
     }
 
-protected:
+    size_t Size() const override
+    {
+        return Components.size();
+    }
 
-    // a map of entity IDs to component index to make lookups fast
+protected:
     std::unordered_map<uint64_t, size_t> EntityIds;
 };
 
@@ -255,10 +256,11 @@ void ECS::DoForEachEntity(Func func)
 {
     for (const auto& pair : Tables)
     {
-        auto& table = pair.second;
-        for (const auto& component : table->Components)
+        ComponentTableBase* baseTable = pair.second;
+        for (size_t i = 0; i < baseTable->Size(); ++i)
         {
-            func(component.EntityId);
+            Component* component = baseTable->Get(i);
+            func(component->EntityId);
         }
     }
 }
