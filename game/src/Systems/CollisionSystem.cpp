@@ -15,10 +15,10 @@
 
 void CollisionSystem::Update()
 {
-    CheckCollisions();
+    CheckSpaceshipLasersCollisions();
 }
 
-void CollisionSystem::CheckCollisions()
+void CollisionSystem::CheckSpaceshipLasersCollisions()
 {
     // Lasers de la nave
     DoForEachComponent<LaserComponent>([this](LaserComponent &laser)
