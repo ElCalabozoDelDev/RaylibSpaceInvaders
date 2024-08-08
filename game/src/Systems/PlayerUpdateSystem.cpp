@@ -6,6 +6,7 @@
 #include "Components/TextureComponent.hpp"
 #include "Components/LaserComponent.hpp"
 #include "Components/ActiveStateComponent.hpp"
+#include "Components/ShootComponent.hpp"
 #include <iostream>
 
 
@@ -15,6 +16,9 @@ void PlayerUpdateSystem::Update()
 		{
 			float deltaSpeed = component.LinearSpeed;
 
+			ShootComponent* shoot = ECSContainer.TryGetComponent<ShootComponent>(component.EntityId);
+			if (!shoot)
+				return;
 			TransformComponent* transform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
 			if (!transform)
 				return;
@@ -44,10 +48,10 @@ void PlayerUpdateSystem::Update()
 
 			if(IsKeyPressed(KEY_SPACE))
 			{
-				component.Shoot = true;
+				shoot->Shoot = true;
 			} else
 			{
-				component.Shoot = false;
+				shoot->Shoot = false;
 			}
 
 			transform->Position = Vector2Add(transform->Position, move);

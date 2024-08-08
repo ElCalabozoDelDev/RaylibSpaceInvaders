@@ -17,6 +17,7 @@
 #include "Components/LaserComponent.hpp"
 #include "Components/SpeedComponent.hpp"
 #include "Components/CollisionComponent.hpp"
+#include "Components/ShootComponent.hpp"
 #include "Systems/DrawSystem.hpp"
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Systems/AiUpdateSystem.hpp"
@@ -56,9 +57,10 @@ void Game::RegisterComponents()
     ecs.RegisterComponent<BlockComponent>();
     ecs.RegisterComponent<ObstacleComponent>();
     ecs.RegisterComponent<ActiveStateComponent>();
-    ecs.RegisterComponent<LaserComponent>();
     ecs.RegisterComponent<SpeedComponent>();
     ecs.RegisterComponent<CollisionComponent>();
+    ecs.RegisterComponent<LaserComponent>();
+    ecs.RegisterComponent<ShootComponent>();
 }
 
 void Game::RegisterSystems()
@@ -91,9 +93,9 @@ void Game::GenerateSpaceship()
     ecs.GetComponent<TransformComponent>(spaceshipId)->Position = {spaceshipX, spaceshipY};
     ecs.GetComponent<TransformComponent>(spaceshipId)->Angle = 0;
     ecs.GetComponent<PlayerInputComponent>(spaceshipId)->LinearSpeed = 5;
-    ecs.GetComponent<PlayerInputComponent>(spaceshipId)->Shoot = false;
-    ecs.GetComponent<PlayerInputComponent>(spaceshipId)->LastShootTime = 0.0;
-    ecs.GetComponent<PlayerInputComponent>(spaceshipId)->ShootCooldown = 0.5;
+    ecs.GetComponent<ShootComponent>(spaceshipId)->Shoot = false;
+    ecs.GetComponent<ShootComponent>(spaceshipId)->LastShootTime = 0.0;
+    ecs.GetComponent<ShootComponent>(spaceshipId)->ShootCooldown = 0.5;
     ecs.GetComponent<SpaceshipComponent>(spaceshipId);
     ecs.GetComponent<CollisionComponent>(spaceshipId)->BoundingBox = {spaceshipX, spaceshipY, spaceshipWidth, spaceshipHeight};
 }

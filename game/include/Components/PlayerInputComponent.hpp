@@ -9,7 +9,4 @@ public:
 
 	float LinearSpeed = 100;
 	float RotationSpeed = 180;
-	float LastShootTime;
-    float ShootCooldown;
-	bool Shoot;
 };

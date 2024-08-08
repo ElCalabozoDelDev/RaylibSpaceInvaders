@@ -7,6 +7,8 @@
 #include "Components/ActiveStateComponent.hpp"
 #include "Components/SpaceshipComponent.hpp"
 #include "Components/CollisionComponent.hpp"
+#include "Components/LaserComponent.hpp"
+#include "Components/ShootComponent.hpp"
 #include <iostream>
 #include "Game.hpp"
 
@@ -14,8 +16,11 @@ void LaserShootSystem::Update()
 {
     DoForEachComponent<PlayerInputComponent>([this](PlayerInputComponent &component)
         {
+            ShootComponent* shoot = ECSContainer.TryGetComponent<ShootComponent>(component.EntityId);
+            if (!shoot)
+                return;
             float currentTime = GetTime();
-            if (component.Shoot && (currentTime - component.LastShootTime >= component.ShootCooldown))
+            if (shoot->Shoot && (currentTime - shoot->LastShootTime >= shoot->ShootCooldown))
             {
                 uint64_t laserId = ECSContainer.GetNewEntity();
                 TransformComponent* playerTransform = ECSContainer.TryGetComponent<TransformComponent>(component.EntityId);
@@ -31,7 +36,7 @@ void LaserShootSystem::Update()
                 bbox.y = pos.y;
                 bbox.width = size.x;
                 bbox.height = size.y;
-                component.LastShootTime = currentTime;
+                shoot->LastShootTime = currentTime;
                 PlaySound(Game::Instance()->GetShootSound());
             }
         });
