@@ -18,6 +18,7 @@
 #include "Components/SpeedComponent.hpp"
 #include "Components/CollisionComponent.hpp"
 #include "Components/ShootComponent.hpp"
+#include "Components/AlienSwarmComponent.hpp"
 #include "Systems/DrawSystem.hpp"
 #include "Systems/PlayerUpdateSystem.hpp"
 #include "Systems/AiUpdateSystem.hpp"
@@ -102,6 +103,12 @@ void Game::GenerateSpaceship()
 
 void Game::GenerateAliens()
 {
+    uint64_t alienSwarmId = ecs.GetNewEntity();
+    ecs.GetComponent<AlienSwarmComponent>(alienSwarmId);
+    ecs.GetComponent<ShootComponent>(alienSwarmId)->Shoot = false;
+    ecs.GetComponent<ShootComponent>(alienSwarmId)->LastShootTime = 0.0;
+    ecs.GetComponent<ShootComponent>(alienSwarmId)->ShootCooldown = 0.5;
+
     for (int i = 0; i < 5; i++)
     {
         for (int j = 0; j < 11; j++)

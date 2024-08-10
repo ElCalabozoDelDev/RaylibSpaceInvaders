@@ -8,6 +8,8 @@
 #include "Components/ActiveStateComponent.hpp"
 #include "Components/SpeedComponent.hpp"
 #include "Components/CollisionComponent.hpp"
+#include "Components/AlienSwarmComponent.hpp"
+#include "Managers/AlienManager.hpp"
 
 void AiUpdateSystem::Update()
 {
@@ -113,4 +115,12 @@ void AiUpdateSystem::MoveMysteryship()
         collision->BoundingBox.x = transform->Position.x;
         collision->BoundingBox.y = transform->Position.y;
         });
+}
+
+void AiUpdateSystem::AlienShoot()
+{
+    DoForEachComponent<AlienSwarmComponent>([this](AlienSwarmComponent &component)
+    {
+
+    });
 }

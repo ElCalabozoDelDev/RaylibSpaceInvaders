@@ -10,6 +10,7 @@
 #include "Components/MysteryshipComponent.hpp"
 #include "Components/TextureComponent.hpp"
 #include "Components/BlockComponent.hpp"
+#include "Managers/AlienManager.hpp"
 #include "Game.hpp"
 #include <iostream>
 
@@ -40,7 +41,7 @@ void CollisionSystem::CheckSpaceshipLasersCollisions()
                 ECSContainer.RemoveEntity(laser.EntityId);
                 ECSContainer.RemoveEntity(alien.EntityId);
                 PlaySound(Game::Instance()->GetExplosionSound());
-                if (GetAliensCount() == 0)
+                if (AlienManager::Instance()->GetAliensCount(ECSContainer) == 0)
                 {
                     Game::Instance()->GameOver();
                 }
@@ -86,14 +87,4 @@ void CollisionSystem::CheckSpaceshipLasersCollisions()
         });
 
     });
-}
-
-int CollisionSystem::GetAliensCount()
-{
-    int count = 0;
-    DoForEachComponent<AlienComponent>([&count](AlienComponent &alien)
-    {
-        count++;
-    });
-    return count;
 }
